@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PR and tech: 24-week plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#131722;
+  --surface:#1a1f2d;
+  --raised:#232a3c;
+  --line:#313950;
+  --text:#e8e4d8;
+  --muted:#9ba2b8;
+  --warn:#f2806f;
+  --display:'Space Mono','IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --body:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+[hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+.wrap{max-width:1040px;margin:0 auto;padding:30px 18px 90px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,5.2vw,42px);line-height:1.15;letter-spacing:-.01em;margin:0 0 12px}
+h2{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.3;margin:0}
+.lede{color:var(--muted);max-width:68ch;margin:0 0 26px}
+a{color:var(--text);text-underline-offset:3px}
+a:hover{color:#fff}
+:focus-visible{outline:2px solid #fff;outline-offset:2px}
+
+/* status */
+.status{font-family:var(--display);font-size:17px;line-height:1.45;margin:0;max-width:70ch}
+.totals{color:var(--muted);margin:4px 0 22px}
+
+/* week map */
+.mapbox{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0 18px}
+.map{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:24px 16px}
+.mg{border-top:3px solid var(--c);padding-top:9px;min-width:0}
+.mg-title{font-size:12px;line-height:1.4;margin:0 0 12px;min-height:4.2em;color:var(--text)}
+.cells{display:flex;gap:6px;align-items:stretch}
+.cell{flex:1 1 0;min-width:0;background:none;border:0;padding:4px 0 3px;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:6px;border-radius:4px}
+.segs{display:flex;flex-direction:column;gap:3px}
+.seg{height:13px;border:1px solid var(--line);border-radius:2px}
+.seg.on{background:var(--c);border-color:var(--c)}
+.cell:hover .seg:not(.on){border-color:var(--c)}
+.lab{font-size:11px;text-align:center;color:var(--muted)}
+.cell.cur{outline:1px solid var(--text);outline-offset:1px}
+.cell.late .lab{color:var(--warn);text-decoration:underline dashed;text-underline-offset:3px}
+.cell:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.buf{flex:0 0 22px;border:1px dashed var(--muted);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)}
+.legend{list-style:none;display:flex;flex-wrap:wrap;gap:8px 22px;margin:22px 0 0;padding:0;font-size:12px;color:var(--muted)}
+.legend li{display:flex;align-items:center;gap:8px}
+.sw{display:inline-grid;place-items:center;flex:0 0 14px;width:14px;height:14px;border:1px solid var(--line);border-radius:2px;font-size:9px}
+.sw.on{background:var(--text);border-color:var(--text)}
+.sw.cur{outline:1px solid var(--text);outline-offset:1px}
+.sw.buf{border:1px dashed var(--muted)}
+.lg-late{color:var(--warn);text-decoration:underline dashed;text-underline-offset:3px;font-size:11px}
+
+/* controls */
+.banner{border:1px dashed var(--warn);border-radius:4px;padding:10px 14px;margin:18px 0 0;font-size:13px;max-width:78ch}
+.controls{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:flex-end;margin:20px 0 6px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+input[type=date],textarea{background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:8px 10px;font:inherit;font-size:14px}
+textarea{width:100%;min-height:72px;resize:vertical}
+.bufinfo{margin:0;font-size:13px;color:var(--muted);padding-bottom:9px}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.btn{background:var(--raised);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer}
+.btn:hover:not(:disabled){border-color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.armed{border-color:var(--warn);color:var(--warn)}
+.msg{min-height:1.6em;margin:6px 0 26px;font-size:13px;color:var(--muted)}
+
+/* months and weeks */
+.month{margin:0 0 38px}
+.mhead{display:grid;grid-template-columns:1fr auto;gap:4px 18px;align-items:end;border-left:4px solid var(--c);padding:0 0 12px 14px}
+.mhead h2{grid-column:1}
+.focus{grid-column:1;color:var(--muted);font-size:13px;margin:0;max-width:62ch}
+.mprog{grid-column:2;grid-row:1 / span 2;text-align:right;font-size:13px;color:var(--muted)}
+.bar{height:6px;width:150px;background:var(--surface);border:1px solid var(--line);border-radius:3px;margin:7px 0 0 auto;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--c)}
+.week{border-left:4px solid var(--c);border-top:1px solid var(--line);padding:14px 0 14px 14px;scroll-margin-top:14px}
+.week.flash{background:var(--surface)}
+.bufrow{border:1px dashed var(--muted);border-radius:4px;padding:6px 10px;margin:0 0 12px;font-size:13px;color:var(--muted)}
+.whead{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;margin-bottom:6px}
+.wnum{font-family:var(--display);font-size:16px;color:var(--c)}
+.wdates{color:var(--muted);font-size:13px}
+.wtag{margin-left:auto;font-size:12px;border-radius:3px;padding:0 7px}
+.wtag.cur{border:1px solid var(--text)}
+.wtag.late{border:1px dashed var(--warn);color:var(--warn)}
+.wtag.done{border:1px solid var(--c);color:var(--c)}
+.chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer;padding:6px 0;position:relative}
+.chk input{position:absolute;opacity:0;width:20px;height:20px;margin:0;left:0;top:8px;cursor:pointer}
+.box{flex:0 0 20px;width:20px;height:20px;border:1.5px solid var(--muted);border-radius:4px;margin-top:2px;display:grid;place-items:center}
+.box::after{content:"";width:10px;height:5px;border-left:2px solid var(--bg);border-bottom:2px solid var(--bg);transform:rotate(-45deg) translate(1px,-1px);opacity:0}
+.chk input:checked + .box{background:var(--c);border-color:var(--c)}
+.chk input:checked + .box::after{opacity:1}
+.chk input:focus-visible + .box{outline:2px solid #fff;outline-offset:2px}
+.txt{flex:1;max-width:72ch}
+.hrs{color:var(--muted);font-size:12px;white-space:nowrap;margin-top:3px}
+.chk input:checked ~ .txt{color:var(--muted);text-decoration:line-through}
+.routine{display:flex;flex-wrap:wrap;gap:0 30px}
+.routine .txt{font-size:13px;flex:0 1 auto}
+.more summary{cursor:pointer;color:var(--muted);font-size:12px;margin-top:6px;list-style:none;display:inline-block}
+.more summary::-webkit-details-marker{display:none}
+.more summary::before{content:"+ "}
+.more[open] summary::before{content:"- "}
+.panel{display:grid;gap:12px;margin-top:10px;max-width:72ch}
+
+/* notes */
+.notes{border-top:1px solid var(--line);margin-top:10px;padding-top:30px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:34px 40px}
+.notes section{min-width:0}
+.notes .wide{grid-column:1 / -1}
+.notes p,.notes li,.notes dd{font-size:14px}
+.notes p{margin:8px 0;max-width:70ch}
+.notes ul,.notes ol{padding-left:20px;margin:8px 0}
+.notes li{margin:5px 0}
+.notes dl{margin:10px 0 0;display:grid;gap:12px}
+.notes dt{font-weight:600}
+.notes dd{margin:2px 0 0;color:var(--muted);max-width:76ch}
+.tag-not{color:var(--warn)}
+
+@media (max-width:860px){
+  .map{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  .notes{grid-template-columns:1fr}
+  .mhead{grid-template-columns:1fr}
+  .mprog{grid-column:1;grid-row:auto;text-align:left}
+  .bar{margin-left:0}
+}
+@media (max-width:480px){
+  .map{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .wtag{margin-left:0}
+}
+@media (prefers-reduced-motion:no-preference){
+  .week{transition:background .4s}
+  .box,.seg{transition:background .15s,border-color .15s}
+}
+@media print{
+  :root{--bg:#fff;--surface:#f2f2f2;--raised:#f2f2f2;--line:#bbb;--text:#111;--muted:#444;--warn:#a1301f}
+  body{font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .controls,.msg,.banner,.more,.map .cell{cursor:default}
+  .controls,.msg,.banner,.more{display:none !important}
+  .week{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>PR and tech: your 24-week plan</h1>
+  <p class="lede">A learning plan for a PR student with a developer's toolkit. About 5 hours a week, running <span id="range">from Oct 13, 2026</span>. Tick off each week's writing piece, task, and networking hour.</p>
+  <p class="status" id="status"></p>
+  <p class="totals" id="totals"></p>
+</header>
+
+<section class="mapbox" aria-labelledby="maph">
+  <h2 class="sr" id="maph">Week map</h2>
+  <div class="map" id="map"></div>
+  <ul class="legend" aria-label="How to read the week map">
+    <li><span class="sw on"></span>Filled bar: done. Top to bottom: writing piece, task, networking.</li>
+    <li><span class="sw"></span>Empty bar: still to do</li>
+    <li><span class="sw cur"></span>Outlined week: this week</li>
+    <li><span class="lg-late">W3</span>Dashed label: earlier week with open tasks</li>
+    <li><span class="sw buf">B</span>Buffer week</li>
+  </ul>
+</section>
+
+<p class="banner" id="nostore" hidden>This view can't save your progress. Download the file and open it in your browser to keep your checkmarks. You can still use Export progress to back up your work.</p>
+
+<div class="controls">
+  <div class="field">
+    <label for="start">Week 1 starts on</label>
+    <input type="date" id="start">
+  </div>
+  <p class="bufinfo" id="bufinfo"></p>
+  <div class="row">
+    <button class="btn" type="button" id="jump">Jump to this week</button>
+    <button class="btn" type="button" id="export">Export progress</button>
+    <button class="btn" type="button" id="import">Import progress</button>
+    <button class="btn" type="button" id="reset">Reset progress</button>
+    <input type="file" id="file" accept="application/json,.json" hidden>
+  </div>
+</div>
+<p class="msg" id="msg" role="status"></p>
+
+<div id="months"></div>
+
+<div class="notes">
+  <section>
+    <h2>Weekly rhythm</h2>
+    <ul>
+      <li>1 piece of writing: 2 hrs. Press releases, pitches, op-eds, or plain-language explainers of technical topics. Make the first one a launch release for a Chromatic app.</li>
+      <li>The week's task: about 2 hrs.</li>
+      <li>Networking or industry news: 1 hr.</li>
+    </ul>
+    <p>That is 5 hours a week and 120 hours over the 24 weeks.</p>
+  </section>
+
+  <section>
+    <h2>Flagged omissions and assumptions</h2>
+    <ul>
+      <li>The plan assumes about 5 hours a week.</li>
+      <li>24 weeks leaves about 2 weeks of buffer for exams. Add buffer weeks from the Notes and buffer panel in any week, and every later date moves.</li>
+      <li>Paid certifications are left out.</li>
+      <li>Weeks run in order. If one slips, add a buffer week before the next one.</li>
+      <li>Progress is stored in this browser only. Use Export progress to back it up.</li>
+    </ul>
+  </section>
+
+  <section class="wide">
+    <h2>Tech skills and priority</h2>
+    <p>Priority order: SQL and analytics first, then the NLP monitoring tool, then security-comms knowledge.</p>
+    <dl>
+      <div><dt>1. SQL and data visualization</dt><dd>W1 to W6. SQL, GA4, and Looker Studio let you prove campaign impact. This is the biggest gap between you and other PR grads.</dd></div>
+      <div><dt>2. LLMs and NLP for comms</dt><dd>W9 to W12. Extend your Sherlock-style tool into brand monitoring: sentiment trends, topic clustering, and automated media digests. Check AI output against hand-labeled data.</dd></div>
+      <div><dt>3. OSINT for reputation and misinformation</dt><dd>W13 and W14. Narrative tracking, spotting impersonation, verifying images and sources, with public data only.</dd></div>
+      <div><dt>4. Cybersecurity literacy for communications</dt><dd>W15 and W16. Incident response, how breaches are reported, Kenya's Data Protection Act 2019, and ODPC breach notification.</dd></div>
+      <div><dt>5. Web and SEO fundamentals</dt><dd>W7 and W8, with analytics tagging in W1. Your portfolio and Chromatic sites are the testing ground.</dd></div>
+      <div><dt>6. Martech and automation</dt><dd>W17 to W19. CRM and email tools like HubSpot. <span class="tag-not">Not scheduled:</span> scheduling and workflow tools. Try them during the W19 launch.</dd></div>
+    </dl>
+  </section>
+
+  <section class="wide">
+    <h2>Where the first skills list lands</h2>
+    <dl>
+      <div><dt>Strategic writing</dt><dd>The weekly writing piece, every week.</dd></div>
+      <div><dt>Comms analytics</dt><dd>Months 1 to 3: GA4, SQL, Looker Studio, and your media monitoring tool.</dd></div>
+      <div><dt>AI and automation workflows</dt><dd>Month 3: the NLP monitoring tool with sentiment and topic clustering.</dd></div>
+      <div><dt>Crisis and reputation management</dt><dd>Month 4: verification, narrative tracking, and the W16 playbook and tabletop drill.</dd></div>
+      <div><dt>Content production</dt><dd>SEO in W7 and W8, newsletter in W17, short-form video in W19. <span class="tag-not">Not scheduled:</span> Figma or Canva. Use one of them for the W22 press kit.</dd></div>
+      <div><dt>Community and social strategy</dt><dd>W19 and W20: posts and engagement metrics. <span class="tag-not">Not scheduled:</span> platform algorithms and influencer partnerships. Fold them into W18 planning.</dd></div>
+      <div><dt>Presenting and stakeholder skills</dt><dd>W24 mock pitch, the W2 LinkedIn rewrite, and the weekly networking hour.</dd></div>
+      <div><dt>Niche: tech and cybersecurity communications</dt><dd>Month 4. Companies struggle to explain technical products and incidents to the public, and your dual background fits.</dd></div>
+      <div><dt>Biggest accelerator: your own projects as PR case studies</dt><dd>W18 to W22: launch plan, press kit, and results report for a Chromatic release, then into your portfolio. A real campaign with measured outcomes beats a certificate.</dd></div>
+      <div><dt>Internships</dt><dd>Don't wait for W23. Use the weekly networking hour to start conversations early with agencies, startups, and comms teams. Nairobi's tech scene is a good place for that.</dd></div>
+    </dl>
+  </section>
+
+  <section class="wide">
+    <h2>Free resources</h2>
+    <ul>
+      <li><a href="https://skillshop.withgoogle.com" target="_blank" rel="noopener noreferrer">Google Skillshop</a>: GA4 course and certification (W1, W4)</li>
+      <li><a href="https://sqlzoo.net" target="_blank" rel="noopener noreferrer">SQLZoo</a>: SQL practice (W2, W3)</li>
+      <li><a href="https://mode.com/sql-tutorial" target="_blank" rel="noopener noreferrer">Mode SQL tutorial</a>: an alternative to SQLZoo</li>
+      <li><a href="https://academy.hubspot.com" target="_blank" rel="noopener noreferrer">HubSpot Academy</a>: email marketing and CRM basics (W17)</li>
+      <li><a href="https://tryhackme.com" target="_blank" rel="noopener noreferrer">TryHackMe</a>: your existing security track</li>
+    </ul>
+  </section>
+</div>
+
+</div>
+
+<noscript><p style="padding:18px">This tracker needs JavaScript to show the plan.</p></noscript>
+
+<script>
+(function(){
+'use strict';
+
+var KEY='prTechPlan.v1';
+var DEFAULT_START='2026-10-13';
+var PLANNED_BUFFER=2;
+var MAX_BUFFER=8;
+var HRS={w:2,t:2,n:1};
+
+var MONTHS=[
+  {name:'Analytics and SQL',short:'Analytics and SQL',color:'#f0b84d',
+   focus:'Tech skills: SQL and analytics (priority 1).',
+   weeks:[
+    'Install GA4 on your portfolio and Chromatic pages, tracking downloads and outbound clicks. Start Google Skillshop.',
+    'SQLZoo (SELECT, WHERE, JOIN). Rewrite your LinkedIn headline and About.',
+    'SQL GROUP BY and aggregates, run on your exported GitHub traffic and star data.',
+    'Pass the GA4 certification. Write a one-page "what the data says" memo.'
+   ]},
+  {name:'Dashboards and web',short:'Dashboards and web',color:'#46c2ae',
+   focus:'Tech skills: data visualization, web and SEO fundamentals.',
+   weeks:[
+    'Build a Looker Studio dashboard from GA4.',
+    'Add GitHub and social metrics. Define 5 KPIs: reach, engagement, conversion, sentiment, share of voice.',
+    'SEO basics on your portfolio: titles, meta tags, structured data, page speed.',
+    'Write a before/after report on the SEO changes.'
+   ]},
+  {name:'NLP monitoring tool (extend Sherlock)',short:'NLP monitoring tool',color:'#a99bff',
+   focus:'Tech skills: LLMs, NLP, and Python automation (priority 2). Your standout skill, and it fits the long break.',
+   weeks:[
+    'Define scope: sources (RSS, news, Reddit) and keywords for one brand.',
+    'Build the collector: ingest, dedupe, store in SQLite.',
+    'Add sentiment and topic clustering. Check accuracy against 50 hand-labeled items.',
+    'Daily digest plus a simple dashboard. Run it for a full week.'
+   ]},
+  {name:'OSINT, crisis, and security comms',short:'OSINT, crisis, security comms',color:'#f2806f',
+   focus:'Tech skills: OSINT and cybersecurity literacy for comms (priority 3). Niche: tech and cybersecurity communications.',
+   weeks:[
+    'Verification skills: reverse image search, source checks, web archives. Fact-check 3 viral claims.',
+    'Narrative tracking and impersonation spotting, using public data only.',
+    'Kenya Data Protection Act 2019, ODPC breach notification, and the incident response lifecycle.',
+    'Write a crisis playbook with holding statements and Q&A for a fictional breach. Run a 60-minute tabletop drill with a friend.'
+   ]},
+  {name:'Martech and a live campaign',short:'Martech and a live campaign',color:'#62b0f5',
+   focus:'Tech skills: martech and automation. Run a real campaign and measure it.',
+   weeks:[
+    'HubSpot Academy email and CRM basics. Set up a newsletter.',
+    'Plan a Chromatic release campaign: goals, audience, KPIs, calendar.',
+    'Launch with UTM-tagged links, short video, and posts on Reddit, X, and GitHub.',
+    'Monitor with your own tool, adjust, and collect results.'
+   ]},
+  {name:'Package and apply',short:'Package and apply',color:'#c4d86a',
+   focus:'Turn the campaign into proof: case study, press kit, applications.',
+   weeks:[
+    'Results report and case study.',
+    'Press kit and portfolio update.',
+    'Apply to 10+ internships and attend Nairobi tech or PR meetups.',
+    'Mock pitch and interview prep.'
+   ]}
+];
+
+var FLAT=[];
+MONTHS.forEach(function(m,mi){ m.weeks.forEach(function(t){ FLAT.push({m:mi,task:t}); }); });
+var N=FLAT.length;
+var PER_WEEK_HOURS=HRS.w+HRS.t+HRS.n;
+
+function $(s,r){ return (r||document).querySelector(s); }
+function $$(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+/* dates */
+function parseDate(str){ var p=str.split('-').map(Number); return new Date(p[0],p[1]-1,p[2]); }
+function validDate(str){
+  if(typeof str!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+  var p=str.split('-').map(Number), d=new Date(p[0],p[1]-1,p[2]);
+  return d.getFullYear()===p[0]&&d.getMonth()===p[1]-1&&d.getDate()===p[2];
+}
+function addDays(d,n){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n); }
+function fmt(d){ return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function fmtY(d){ return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+function today0(){ var t=new Date(); return new Date(t.getFullYear(),t.getMonth(),t.getDate()); }
+
+/* state */
+function freshState(){
+  return {start:DEFAULT_START,weeks:FLAT.map(function(){ return {w:false,t:false,n:false,note:''}; }),buffers:{}};
+}
+function sanitize(raw){
+  if(!raw||typeof raw!=='object') return null;
+  if(!validDate(raw.start)) return null;
+  if(!Array.isArray(raw.weeks)||raw.weeks.length!==N) return null;
+  var weeks=[];
+  for(var i=0;i<raw.weeks.length;i++){
+    var w=raw.weeks[i];
+    if(!w||typeof w!=='object') return null;
+    weeks.push({w:w.w===true,t:w.t===true,n:w.n===true,note:typeof w.note==='string'?w.note.slice(0,2000):''});
+  }
+  var buffers={};
+  if(raw.buffers&&typeof raw.buffers==='object'){
+    Object.keys(raw.buffers).forEach(function(k){
+      var i=Number(k), v=raw.buffers[k];
+      if(Number.isInteger(i)&&i>=0&&i<N&&Number.isInteger(v)&&v>0&&v<=MAX_BUFFER) buffers[i]=v;
+    });
+  }
+  return {start:raw.start,weeks:weeks,buffers:buffers};
+}
+
+var canStore=false;
+try{
+  var probe='__prtech_probe__';
+  window.localStorage.setItem(probe,'1');
+  window.localStorage.removeItem(probe);
+  canStore=true;
+}catch(e){ canStore=false; }
+
+function load(){
+  if(!canStore) return freshState();
+  try{
+    var raw=window.localStorage.getItem(KEY);
+    if(!raw) return freshState();
+    return sanitize(JSON.parse(raw))||freshState();
+  }catch(e){ return freshState(); }
+}
+function save(){
+  if(!canStore) return;
+  try{ window.localStorage.setItem(KEY,JSON.stringify(state)); }
+  catch(e){ canStore=false; $('#nostore').hidden=false; }
+}
+
+var state=load();
+
+/* schedule */
+function schedule(){
+  var s=parseDate(state.start), offset=0, out=[];
+  for(var i=0;i<N;i++){
+    var b=state.buffers[i]||0, bufs=[];
+    for(var k=0;k<b;k++){
+      var bs=addDays(s,7*(i+offset+k));
+      bufs.push({start:bs,end:addDays(bs,6)});
+    }
+    offset+=b;
+    var st=addDays(s,7*(i+offset));
+    out.push({start:st,end:addDays(st,6),buffers:bufs});
+  }
+  return out;
+}
+function bufferTotal(){
+  var t=0;
+  Object.keys(state.buffers).forEach(function(k){ t+=state.buffers[k]; });
+  return t;
+}
+function current(sched,today){
+  if(today<parseDate(state.start)) return {type:'before'};
+  for(var i=0;i<sched.length;i++){
+    for(var j=0;j<sched[i].buffers.length;j++){
+      var b=sched[i].buffers[j];
+      if(today>=b.start&&today<=b.end) return {type:'buffer',i:i};
+    }
+    if(today>=sched[i].start&&today<=sched[i].end) return {type:'week',i:i};
+  }
+  return {type:'after'};
+}
+function weekDone(i){
+  var w=state.weeks[i];
+  return (w.w?1:0)+(w.t?1:0)+(w.n?1:0);
+}
+
+/* build the page once */
+var weekEls=[];
+var monthEls=[];
+(function build(){
+  var host=$('#months'), gi=0;
+  MONTHS.forEach(function(m,mi){
+    var sec=document.createElement('section');
+    sec.className='month';
+    sec.id='month-'+(mi+1);
+    sec.style.setProperty('--c',m.color);
+    sec.innerHTML=
+      '<header class="mhead"><h2>Month '+(mi+1)+': '+esc(m.name)+'</h2>'+
+      '<p class="focus">'+esc(m.focus)+'</p>'+
+      '<div class="mprog"><span data-mcount></span><div class="bar" aria-hidden="true"><i data-mbar></i></div></div></header>';
+    m.weeks.forEach(function(task){
+      var i=gi++, n=i+1;
+      var art=document.createElement('article');
+      art.className='week';
+      art.id='week-'+n;
+      art.innerHTML=
+        '<div data-bufs></div>'+
+        '<div class="whead"><strong class="wnum">W'+n+'</strong><span class="wdates" data-dates></span><span class="wtag" data-tag hidden></span></div>'+
+        '<label class="chk task"><input type="checkbox" data-i="'+i+'" data-k="t"><span class="box" aria-hidden="true"></span>'+
+          '<span class="txt"><span class="sr">Week '+n+' task: </span>'+esc(task)+'</span><span class="hrs">'+HRS.t+'h</span></label>'+
+        '<div class="routine">'+
+          '<label class="chk"><input type="checkbox" data-i="'+i+'" data-k="w"><span class="box" aria-hidden="true"></span>'+
+            '<span class="txt"><span class="sr">Week '+n+': </span>Writing piece</span><span class="hrs">'+HRS.w+'h</span></label>'+
+          '<label class="chk"><input type="checkbox" data-i="'+i+'" data-k="n"><span class="box" aria-hidden="true"></span>'+
+            '<span class="txt"><span class="sr">Week '+n+': </span>Networking or industry news</span><span class="hrs">'+HRS.n+'h</span></label>'+
+        '</div>'+
+        '<details class="more"><summary data-sum>Notes and buffer</summary><div class="panel">'+
+          '<div class="field"><label for="note-'+i+'">Proof of work or notes for W'+n+'</label>'+
+          '<textarea id="note-'+i+'" data-i="'+i+'" maxlength="2000" placeholder="Link to what you shipped, or a few lines on what you learned."></textarea></div>'+
+          '<div class="row"><button type="button" class="btn" data-act="buf-add" data-i="'+i+'">Add a buffer week before W'+n+'</button>'+
+          '<button type="button" class="btn" data-act="buf-del" data-i="'+i+'">Remove a buffer week</button></div>'+
+        '</div></details>';
+      weekEls.push(art);
+      sec.appendChild(art);
+    });
+    monthEls.push(sec);
+    host.appendChild(sec);
+  });
+})();
+
+function syncNotes(){
+  $$('textarea[data-i]').forEach(function(t){ t.value=state.weeks[+t.dataset.i].note; });
+}
+function noteFlag(i){
+  var s=$('[data-sum]',weekEls[i]);
+  s.textContent=state.weeks[i].note.trim()?'Notes and buffer (has notes)':'Notes and buffer';
+}
+
+/* map */
+var mapEl=$('#map');
+function renderMap(sched,cur,today){
+  mapEl.innerHTML='';
+  MONTHS.forEach(function(m,mi){
+    var g=document.createElement('div');
+    g.className='mg';
+    g.style.setProperty('--c',m.color);
+    var t=document.createElement('p');
+    t.className='mg-title';
+    t.textContent='Month '+(mi+1)+': '+m.short;
+    g.appendChild(t);
+    var cells=document.createElement('div');
+    cells.className='cells';
+    for(var wi=0;wi<4;wi++){
+      var i=mi*4+wi, n=i+1;
+      var nb=state.buffers[i]||0;
+      for(var k=0;k<nb;k++){
+        var bd=document.createElement('div');
+        bd.className='buf';
+        bd.setAttribute('role','img');
+        bd.setAttribute('aria-label','Buffer week');
+        bd.title='Buffer week';
+        bd.textContent='B';
+        cells.appendChild(bd);
+      }
+      var done=weekDone(i);
+      var isCur=cur.type==='week'&&cur.i===i;
+      var late=sched[i].end<today&&done<3;
+      var b=document.createElement('button');
+      b.type='button';
+      b.className='cell'+(isCur?' cur':'')+(late?' late':'');
+      b.dataset.i=String(i);
+      var range=fmt(sched[i].start)+' to '+fmt(sched[i].end);
+      var label='Week '+n+', '+range+': '+done+' of 3 done'+(isCur?', this week':'')+(late?', still open':'')+'. '+FLAT[i].task;
+      b.setAttribute('aria-label',label);
+      b.title='W'+n+' ('+range+'): '+done+' of 3 done';
+      var segs=document.createElement('span');
+      segs.className='segs';
+      ['w','t','n'].forEach(function(key){
+        var sg=document.createElement('span');
+        sg.className='seg'+(state.weeks[i][key]?' on':'');
+        segs.appendChild(sg);
+      });
+      var lab=document.createElement('span');
+      lab.className='lab';
+      lab.textContent='W'+n;
+      b.appendChild(segs);
+      b.appendChild(lab);
+      cells.appendChild(b);
+    }
+    g.appendChild(cells);
+    mapEl.appendChild(g);
+  });
+}
+
+/* refresh everything that depends on state or today */
+function refresh(){
+  var today=today0();
+  var sched=schedule();
+  var cur=current(sched,today);
+
+  $$('input[type=checkbox][data-i]').forEach(function(cb){
+    cb.checked=state.weeks[+cb.dataset.i][cb.dataset.k];
+  });
+
+  var openEarlier=0, hasEarlier=false, doneTasks=0, hours=0;
+  for(var i=0;i<N;i++){
+    var w=state.weeks[i];
+    doneTasks+=weekDone(i);
+    hours+=(w.w?HRS.w:0)+(w.t?HRS.t:0)+(w.n?HRS.n:0);
+    if(sched[i].end<today){ hasEarlier=true; openEarlier+=3-weekDone(i); }
+  }
+
+  weekEls.forEach(function(art,i){
+    var s=sched[i];
+    $('[data-dates]',art).textContent=fmt(s.start)+' to '+fmt(s.end);
+    var done=weekDone(i);
+    var tag=$('[data-tag]',art);
+    if(done===3){ tag.hidden=false; tag.className='wtag done'; tag.textContent='Done'; }
+    else if(cur.type==='week'&&cur.i===i){ tag.hidden=false; tag.className='wtag cur'; tag.textContent='This week'; }
+    else if(s.end<today){ tag.hidden=false; tag.className='wtag late'; tag.textContent='Earlier week, still open'; }
+    else { tag.hidden=true; tag.className='wtag'; tag.textContent=''; }
+    var bh='';
+    s.buffers.forEach(function(b){ bh+='<div class="bufrow">Buffer week: '+fmt(b.start)+' to '+fmt(b.end)+'</div>'; });
+    $('[data-bufs]',art).innerHTML=bh;
+    $('[data-act="buf-del"]',art).disabled=!(state.buffers[i]>0);
+    $('[data-act="buf-add"]',art).disabled=(state.buffers[i]||0)>=MAX_BUFFER;
+    noteFlag(i);
+  });
+
+  monthEls.forEach(function(sec,mi){
+    var d=0;
+    for(var k=0;k<4;k++) d+=weekDone(mi*4+k);
+    $('[data-mcount]',sec).textContent=d+' of 12 tasks';
+    $('[data-mbar]',sec).style.width=(d/12*100)+'%';
+  });
+
+  var first=parseDate(state.start);
+  var last=sched[N-1].end;
+  $('#range').textContent='from '+fmtY(first)+' to '+fmtY(last);
+
+  var suffix='';
+  if(hasEarlier){
+    suffix=openEarlier>0?(' '+openEarlier+' task'+(openEarlier===1?'':'s')+' still open from earlier weeks.'):' Every earlier week is done.';
+  }
+  var line='';
+  if(cur.type==='before'){
+    var days=Math.round((first-today)/86400000);
+    line='The plan starts on '+fmtY(first)+', in '+days+' day'+(days===1?'':'s')+'.';
+  }else if(cur.type==='week'){
+    line='Week '+(cur.i+1)+' of '+N+', '+fmt(sched[cur.i].start)+' to '+fmt(sched[cur.i].end)+'.'+suffix;
+  }else if(cur.type==='buffer'){
+    line='Buffer week. Next up is W'+(cur.i+1)+', starting '+fmt(sched[cur.i].start)+'.'+suffix;
+  }else{
+    line='The '+N+' weeks are over.'+(openEarlier>0?(' '+openEarlier+' task'+(openEarlier===1?'':'s')+' still open.'):' Every task is done.');
+  }
+  $('#status').textContent=line;
+  $('#totals').textContent=doneTasks+' of '+(N*3)+' tasks done. '+hours+' of '+(N*PER_WEEK_HOURS)+' hours.';
+
+  $('#bufinfo').textContent='Buffer weeks added: '+bufferTotal()+' of about '+PLANNED_BUFFER+' planned.';
+  $('#start').value=state.start;
+
+  renderMap(sched,cur,today);
+}
+
+/* helpers */
+var msgTimer=null;
+function say(text){
+  var el=$('#msg');
+  el.textContent=text;
+  clearTimeout(msgTimer);
+  msgTimer=setTimeout(function(){ el.textContent=''; },6000);
+}
+function prefersReduced(){
+  return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+function goTo(i){
+  var art=weekEls[i];
+  if(!art) return;
+  if(art.scrollIntoView) art.scrollIntoView({behavior:prefersReduced()?'auto':'smooth',block:'start'});
+  art.classList.add('flash');
+  setTimeout(function(){ art.classList.remove('flash'); },1400);
+  var cb=$('input[data-k="t"]',art);
+  if(cb) cb.focus({preventScroll:true});
+}
+
+/* events */
+document.addEventListener('change',function(e){
+  var t=e.target;
+  if(t.matches&&t.matches('input[type=checkbox][data-i]')){
+    state.weeks[+t.dataset.i][t.dataset.k]=t.checked;
+    save();
+    refresh();
+  }
+});
+document.addEventListener('input',function(e){
+  var t=e.target;
+  if(t.matches&&t.matches('textarea[data-i]')){
+    var i=+t.dataset.i;
+    state.weeks[i].note=t.value;
+    save();
+    noteFlag(i);
+  }
+});
+document.addEventListener('click',function(e){
+  var cell=e.target.closest&&e.target.closest('.cell');
+  if(cell){ goTo(+cell.dataset.i); return; }
+  var b=e.target.closest&&e.target.closest('[data-act]');
+  if(!b||b.disabled) return;
+  var i=+b.dataset.i;
+  if(b.dataset.act==='buf-add'){
+    state.buffers[i]=Math.min(MAX_BUFFER,(state.buffers[i]||0)+1);
+    save(); refresh();
+    say('Buffer week added before W'+(i+1)+'. Later dates moved by one week.');
+  }else if(b.dataset.act==='buf-del'){
+    if(state.buffers[i]>1) state.buffers[i]-=1; else delete state.buffers[i];
+    save(); refresh();
+    say('Buffer week removed before W'+(i+1)+'. Later dates moved back by one week.');
+  }
+});
+$('#map').addEventListener('keydown',function(e){
+  if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft') return;
+  var cells=$$('.cell',mapEl), idx=cells.indexOf(document.activeElement);
+  if(idx<0) return;
+  var next=cells[idx+(e.key==='ArrowRight'?1:-1)];
+  if(next){ e.preventDefault(); next.focus(); }
+});
+$('#start').addEventListener('change',function(e){
+  var v=e.target.value;
+  if(validDate(v)){
+    state.start=v;
+    save(); refresh();
+    say('Week 1 now starts on '+fmtY(parseDate(v))+'.');
+  }else{
+    e.target.value=state.start;
+    say('Pick a valid start date. Nothing changed.');
+  }
+});
+$('#jump').addEventListener('click',function(){
+  var sched=schedule(), cur=current(sched,today0()), i=0;
+  if(cur.type==='week'||cur.type==='buffer') i=cur.i;
+  else if(cur.type==='after') i=N-1;
+  goTo(i);
+});
+$('#export').addEventListener('click',function(){
+  try{
+    var blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download='pr-tech-plan-progress.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); },1000);
+    say('Progress exported.');
+  }catch(err){
+    say('Export failed in this view. Open the file in your browser and try again.');
+  }
+});
+$('#import').addEventListener('click',function(){ $('#file').click(); });
+$('#file').addEventListener('change',function(e){
+  var f=e.target.files&&e.target.files[0];
+  if(!f) return;
+  var reader=new FileReader();
+  reader.onload=function(){
+    var parsed=null;
+    try{ parsed=sanitize(JSON.parse(String(reader.result))); }catch(err){ parsed=null; }
+    if(!parsed){
+      say('That file is not a progress export from this tracker. Nothing changed.');
+    }else{
+      state=parsed;
+      save(); syncNotes(); refresh();
+      say('Progress imported.');
+    }
+    e.target.value='';
+  };
+  reader.onerror=function(){ say('Could not read that file. Nothing changed.'); e.target.value=''; };
+  reader.readAsText(f);
+});
+var resetBtn=$('#reset'), resetTimer=null;
+resetBtn.addEventListener('click',function(){
+  if(!resetBtn.classList.contains('armed')){
+    resetBtn.classList.add('armed');
+    resetBtn.textContent='Click again to erase all progress';
+    resetTimer=setTimeout(disarm,4000);
+    return;
+  }
+  disarm();
+  state=freshState();
+  save(); syncNotes(); refresh();
+  say('Progress reset.');
+});
+function disarm(){
+  clearTimeout(resetTimer);
+  resetBtn.classList.remove('armed');
+  resetBtn.textContent='Reset progress';
+}
+window.addEventListener('storage',function(e){
+  if(e.key===KEY){ state=load(); syncNotes(); refresh(); }
+});
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden) refresh();
+});
+
+/* start */
+if(!canStore) $('#nostore').hidden=false;
+syncNotes();
+refresh();
+})();
+</script>
+</body>
+</html>
